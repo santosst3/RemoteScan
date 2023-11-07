@@ -16,8 +16,7 @@ function firstuse {
 	varset = 1
 	while [varset]
 	do
-		echo This was the informed IP address of the server:
-		echo $ip_address
+		echo This was the informed IP address of the server: $ip_address
 		echo Is this information correct? 1-yes, 0-no:
 		read cond
 		if [ "$cond" -eq 1 ]; then
@@ -25,11 +24,27 @@ function firstuse {
 		fi
 	done
 	echo $ip_address > .server_address
+	echo What user on the server would you like to connect to?  
+	read remote_user
+	varset = 1
+	while [varset]
+	do
+		echo This was the informed user: $ remote_user
+		echo Is this information correct? 1-yes, 0-no:
+		read cond
+		if [ "$cond" -eq 1 ]; then
+			varset = 0
+		fi
+	done
+	echo $remote_user > .remote_user
 	sleep 1
 	printheader
 }
 
-#function scan_photo {}
+function scan_photo {
+	echo Starting scan job at 
+	
+}
 
 #function scan_doc {}
 
@@ -37,12 +52,7 @@ function firstuse {
 # Argument verification
 if [ $# -ne 0 ]; # No arguments!
   then
-   echo You must provide the name of the system image file you want to edit! 
-   exit 1
-fi
-if [ ! -f "$1" ]; # If the given file name is wrong
-  then
-   echo The provided file name does not exist! Please, try again.
+   echo You should not provide any argument to the script. 
    exit 1
 fi
 
@@ -50,6 +60,9 @@ fi
 if [ ! -f .server_address ]; then
 	firstuse
 fi
+
+ip_address = $( cat .server_address )
+remote_user = $( cat .remote_user )
 
 # Function selection
 printheader
@@ -65,6 +78,7 @@ if [ "$selection" -eq 1 ]; then
 elif [ "$selection" -eq 2 ]; then
     echo Document scanning selected.
     sleep 1
+    printheader
     scan_doc
 else
     echo Invalid input, try again.
