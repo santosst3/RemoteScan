@@ -1,2 +1,3 @@
 .server_address
 .remote_user
+scan.*
