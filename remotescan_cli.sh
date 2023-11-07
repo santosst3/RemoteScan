@@ -48,6 +48,7 @@ function firstuse {
 }
 
 function scan_photo {
+	rm scan.jpg || true
 	echo Starting scan job at $remote_user@$ip_address
 	ssh $remote_user@$ip_address 'scanimage -p -o scan.jpg'
 	scp $remote_user@$ip_address:/home/$remote_user/scan.jpg .
@@ -56,7 +57,41 @@ function scan_photo {
 	exit
 }
 
-#function scan_doc {}
+function scan_doc {
+	rm scan.pdf || true
+	mkdir temp_scan
+	cd temp_scan
+	count=1
+	echo Starting scan job at $remote_user@$ip_address
+	while [ $count -ne 0 ]
+	do
+		ssh $remote_user@$ip_address 'scanimage -p -o scan.pdf'
+		scp $remote_user@$ip_address:/home/$remote_user/scan.pdf .
+		open scan.pdf
+		echo Do you want to add the scanned page to the document? 1-yes, 0-no:
+		read cond
+		if [ "$cond" -eq 1 ]; then
+			mv scan.pdf scan_$count.pdf
+			echo Do you want to scan a new page of the document? 1-yes, 0-no:
+			read cond
+			if [ "$cond" -eq 1 ]; then
+				count=$(expr $count + 1)
+			else
+				count=0
+			fi
+		else
+			echo The document will be scanned again in 3 seconds
+			sleep 3
+		fi
+	done
+	pdfunite scan_*.pdf output.pdf
+	cd ..
+	mv temp_scan/output.pdf scan.pdf
+	rm -rf temp_scan
+	echo Scan job completed! Output file: scan.pdf
+	echo Thanks for using this tool!
+	exit
+}
 
 
 # Argument verification
